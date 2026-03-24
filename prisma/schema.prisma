@@ -1,27 +1,20 @@
-// ScholarPath BD - Database Schema (SQLite for local development)
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  password     String
-  firstName    String
-  lastName     String
-  phone        String?
-  avatar       String?
-  plan         String   @default("FREE")
-  role         String   @default("USER")
-  isVerified   Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
   applications      Application[]
   savedScholarships SavedScholarship[]
@@ -68,7 +61,7 @@ model SavedScholarship {
   scholarshipId String
   createdAt     DateTime @default(now())
 
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   scholarship Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
 
   @@unique([userId, scholarshipId])
@@ -76,18 +69,18 @@ model SavedScholarship {
 }
 
 model Application {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   userId        String
   scholarshipId String
-  status        String   @default("DRAFT")
-  progress      Int      @default(0)
-  appliedVia    String   @default("self")
+  status        String    @default("DRAFT")
+  progress      Int       @default(0)
+  appliedVia    String    @default("self")
   notes         String?
   submittedAt   DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   scholarship Scholarship @relation(fields: [scholarshipId], references: [id])
 
   @@map("applications")
@@ -109,17 +102,17 @@ model Document {
 }
 
 model Payment {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   userId        String
   plan          String
   amount        Int
-  currency      String   @default("BDT")
+  currency      String    @default("BDT")
   method        String
-  status        String   @default("PENDING")
-  transactionId String?  @unique
+  status        String    @default("PENDING")
+  transactionId String?   @unique
   sessionKey    String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

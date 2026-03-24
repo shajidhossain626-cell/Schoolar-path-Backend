@@ -1,0 +1,174 @@
+// ScholarPath BD - Database Schema (SQLite for local development)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  password     String
+  firstName    String
+  lastName     String
+  phone        String?
+  avatar       String?
+  plan         String   @default("FREE")
+  role         String   @default("USER")
+  isVerified   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  applications      Application[]
+  savedScholarships SavedScholarship[]
+  documents         Document[]
+  payments          Payment[]
+  notifications     Notification[]
+
+  @@map("users")
+}
+
+model Scholarship {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  flag        String
+  country     String
+  name        String
+  shortName   String
+  description String
+  tags        String
+  amount      String
+  deadline    DateTime
+  isUrgent    Boolean  @default(false)
+  funding     String
+  degree      String
+  field       String
+  overview    String
+  benefits    String
+  eligibility String
+  documents   String
+  steps       String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  applications Application[]
+  savedBy      SavedScholarship[]
+
+  @@map("scholarships")
+}
+
+model SavedScholarship {
+  id            String   @id @default(uuid())
+  userId        String
+  scholarshipId String
+  createdAt     DateTime @default(now())
+
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scholarship Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, scholarshipId])
+  @@map("saved_scholarships")
+}
+
+model Application {
+  id            String   @id @default(uuid())
+  userId        String
+  scholarshipId String
+  status        String   @default("DRAFT")
+  progress      Int      @default(0)
+  appliedVia    String   @default("self")
+  notes         String?
+  submittedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scholarship Scholarship @relation(fields: [scholarshipId], references: [id])
+
+  @@map("applications")
+}
+
+model Document {
+  id         String   @id @default(uuid())
+  userId     String
+  name       String
+  fileUrl    String
+  fileSize   String
+  fileType   String
+  status     String   @default("PENDING")
+  uploadedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
+
+model Payment {
+  id            String   @id @default(uuid())
+  userId        String
+  plan          String
+  amount        Int
+  currency      String   @default("BDT")
+  method        String
+  status        String   @default("PENDING")
+  transactionId String?  @unique
+  sessionKey    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+model BlogPost {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  title       String
+  excerpt     String
+  content     String
+  category    String
+  emoji       String
+  author      String
+  authorInit  String
+  readTime    String
+  isPublished Boolean  @default(true)
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("blog_posts")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("info")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String?
+  email     String
+  phone     String?
+  interest  String?
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("contact_messages")
+}

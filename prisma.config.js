@@ -1,7 +1,7 @@
+'use strict'
 require('dotenv').config()
-
-/** @type {import('prisma/config').PrismaConfig} */
-const config = {
+ 
+module.exports = {
   schema: 'prisma/schema.prisma',
   migrations: {
     path: 'prisma/migrations',
@@ -11,5 +11,3 @@ const config = {
     directUrl: process.env.DIRECT_URL,
   },
 }
-
-module.exports = config

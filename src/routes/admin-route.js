@@ -60,3 +60,14 @@ router.put('/applications/:id/status', async (req, res) => {
 })
 
 module.exports = router
+
+// GET /api/admin/documents — all documents with user info
+router.get('/documents', async (req, res) => {
+  const documents = await prisma.document.findMany({
+    include: {
+      user: { select: { firstName: true, lastName: true, email: true } }
+    },
+    orderBy: { uploadedAt: 'desc' }
+  })
+  return success(res, documents)
+})
